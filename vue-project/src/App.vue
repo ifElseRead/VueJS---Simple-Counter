@@ -1,87 +1,67 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted } from "vue"; // Make sure to import 'onMounted'
 
-// Existing tasks array from Day 2
-const tasks = ref([
-  // ... your tasks array
-]);
+// 1. Reactive array to hold the fetched users
+const users = ref([]);
 
-// 1. New reactive variable for the input field
-const newTaskText = ref("");
+// 2. Reactive boolean to track the loading status
+const isLoading = ref(false);
 
-// Existing removeTask function
-const removeTask = (taskIdToRemove) => {
-  const index = tasks.value.findIndex((task) => task.id === taskIdToRemove);
-  if (index !== -1) {
-    tasks.value.splice(index, 1);
+// 3. Reactive string to hold any errors that occur
+const error = ref(null);
+
+// 4. Define the async function to fetch data
+const fetchUsers = async () => {
+  // Set the loading state to true and clear any previous error
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    // Fetch data from the external API
+    const response = await fetch("https://jsonplaceholder.typicode.com/users");
+
+    // Check if the response was successful (status code 200-299)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Parse the JSON response
+    const data = await response.json();
+
+    // Update the reactive 'users' array with the fetched data
+    users.value = data;
+  } catch (err) {
+    // If an error occurs (e.g., network issue), store the message
+    error.value = err.message;
+  } finally {
+    // Regardless of success or failure, set loading back to false
+    isLoading.value = false;
   }
 };
 
-// 1. Define the function to add a new task
-const addTask = () => {
-  // 1. Basic validation: ensure the input isn't empty
-  if (newTaskText.value.trim() === "") {
-    return; // Stop if the input is empty or just whitespace
-  }
-
-  // 2. Create the new task object
-  const newTask = {
-    // Simple way to get a unique ID: using the current timestamp
-    id: Date.now(),
-    text: newTaskText.value,
-    done: false,
-  };
-
-  // 3. Add the new task to the reactive array
-  tasks.value.push(newTask);
-
-  // 4. Clear the input field for the next task
-  newTaskText.value = "";
-};
-const remainingTasksCount = computed(() => {
-  // Filter the tasks array to find how many tasks are NOT done
-  return tasks.value.filter((t) => !t.done).length;
+// 5. Call the fetching function when the component is mounted
+onMounted(() => {
+  fetchUsers();
 });
-const toggleDone = (taskIdToToggle) => {
-  // Find the task object within the reactive array
-  const task = tasks.value.find((t) => t.id === taskIdToToggle);
-
-  // If the task is found, flip its boolean 'done' value
-  if (task) {
-    task.done = !task.done;
-  }
-};
 </script>
 
 <template>
-  <div>
-    <input
-      type="text"
-      placeholder="What needs to be done?"
-      v-model="newTaskText"
-    />
-    <button @click="addTask">Add Task</button>
+  <h1>External User Data Fetcher</h1>
+
+  <div v-if="isLoading">
+    <p>Loading user data, please wait...</p>
   </div>
 
-  <h1>My Day 3 Tasks</h1>
-  <p>Remaining: **{{ remainingTasksCount }}**</p>
-  <li
-    v-for="task in tasks"
-    :key="task.id"
-    :class="{ done: task.done }"
-    @click="toggleDone(task.id)"
-  >
-    {{ task.text }}
-    <span v-if="task.done">✅</span>
-    <span v-else>⏳</span>
+  <div v-else-if="error">
+    <p style="color: red">Error fetching data: {{ error }}</p>
+    <button @click="fetchUsers">Try Again</button>
+  </div>
 
-    <button @click.stop="removeTask(task.id)">Remove</button>
-  </li>
+  <ul v-else>
+    <li v-for="user in users" :key="user.id">
+      <strong>{{ user.name }}</strong> ({{ user.username }})
+      <br />
+      <small>Email: {{ user.email }} | City: {{ user.address.city }}</small>
+    </li>
+  </ul>
 </template>
-
-<style scoped>
-.done {
-  text-decoration: line-through;
-  color: #888;
-}
-</style>
