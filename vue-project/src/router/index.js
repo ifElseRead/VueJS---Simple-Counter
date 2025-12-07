@@ -1,20 +1,22 @@
 import { createRouter, createWebHistory } from "vue-router";
-// 1. Import the component we will use for the main route
-import UserListView from "../views/UserListView.vue";
+import MovieSearchView from "../views/MovieSearchView.vue";
 
-// 2. Define our routes
 const router = createRouter({
-  history: createWebHistory(), // Recommended history mode for modern web apps
+  history: createWebHistory(),
   routes: [
     {
       path: "/",
-      name: "home",
-      component: { template: "<h1>Welcome Home!</h1>" }, // Simple inline component for now
+      name: "search",
+      component: MovieSearchView, // Our main search page
     },
     {
-      path: "/users",
-      name: "users",
-      component: UserListView, // This will be our User Fetcher page
+      path: "/about",
+      name: "about",
+      // Simple view for the About page
+      component: {
+        template:
+          "<h1>About This App</h1><p>A demonstration of core Vue.js concepts.</p>",
+      },
     },
   ],
 });
