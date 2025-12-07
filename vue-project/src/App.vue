@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue"; // Make sure to import 'onMounted'
+import UserCard from "./components/UserCard.vue";
 
 // 1. Reactive array to hold the fetched users
 const users = ref([]);
@@ -38,6 +39,11 @@ const fetchUsers = async () => {
     isLoading.value = false;
   }
 };
+// 3. New deletion function for the parent
+const deleteUser = (userIdToDelete) => {
+  // Filter out the user with the matching ID
+  users.value = users.value.filter((user) => user.id !== userIdToDelete);
+};
 
 // 5. Call the fetching function when the component is mounted
 onMounted(() => {
@@ -58,10 +64,11 @@ onMounted(() => {
   </div>
 
   <ul v-else>
-    <li v-for="user in users" :key="user.id">
-      <strong>{{ user.name }}</strong> ({{ user.username }})
-      <br />
-      <small>Email: {{ user.email }} | City: {{ user.address.city }}</small>
-    </li>
+    <UserCard
+      v-for="user in users"
+      :key="user.id"
+      :user="user"
+      @delete-user="deleteUser"
+    />
   </ul>
 </template>
