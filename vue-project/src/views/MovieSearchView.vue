@@ -14,7 +14,7 @@ const error = ref(null);
 
 // IMPORTANT: Replace YOUR_API_KEY with 'a1b2c3d4' for testing,
 // or get a free key from OMDb API.
-const API_KEY = "YOUR_API_KEY";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const runSearch = async () => {
   // 1. Basic validation: don't search if input is empty
