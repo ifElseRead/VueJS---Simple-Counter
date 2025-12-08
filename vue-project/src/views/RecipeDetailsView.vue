@@ -6,7 +6,7 @@ import { useRoute, useRouter } from "vue-router";
 const recipe = ref(null);
 const isLoading = ref(false);
 const error = ref(null);
-
+// const testing = ref([1, 2, 3, 4, 5]);
 
 const route = useRoute();
 const router = useRouter();
